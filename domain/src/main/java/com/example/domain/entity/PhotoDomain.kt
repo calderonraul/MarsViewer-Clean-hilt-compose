@@ -1,5 +1,11 @@
 package com.example.domain.entity
 
+
+
+data class ListOfPhotosDomain(
+
+    val list : List<PhotoDomain>
+)
 data class PhotoDomain(
     val id: Int,
     val sol: Int,

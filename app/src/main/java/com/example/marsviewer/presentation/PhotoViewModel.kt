@@ -1,38 +1,25 @@
 package com.example.marsviewer.presentation
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.data.model.PhotoMapper
+import com.example.domain.entity.ListOfPhotosDomain
 import com.example.domain.useCase.GetPhotosUseCase
-import com.example.utils.Resource
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class PhotoViewModel (private val getPhotosUseCase: GetPhotosUseCase):ViewModel(){
+@HiltViewModel
+class PhotoViewModel @Inject constructor(private val getPhotosUseCase: GetPhotosUseCase) :
+    ViewModel() {
+    private val photoData: Flow<ListOfPhotosDomain?> = getPhotosUseCase.invoke()
+    private val initialValue = ListOfPhotosDomain(
+        list = emptyList()
+    )
 
-    private val _state = mutableStateOf(PhotoListState())
-    val state:State<PhotoListState> = _state
+    val registerState = PhotoListUiState(
+        photosFlow = photoData.stateIn(viewModelScope, SharingStarted.Lazily, initialValue)
+    )
 
-    init {
-        getPhoto()
-    }
-
-    private fun getPhoto(){
-        getPhotosUseCase().onEach { result->
-            when(result){
-                is Resource.Success->{
-                    _state.value= PhotoListState(photos = PhotoMapper().toEntityList(result.data?: emptyList()))
-                }
-                is Resource.Error->{
-                    _state.value= PhotoListState(error = result.message?:"Error occurred")
-                }
-                is Resource.Loading->{
-                    _state.value=PhotoListState(isLoading = true)
-                }
-            }
-
-        }.launchIn(viewModelScope)
-    }
 }

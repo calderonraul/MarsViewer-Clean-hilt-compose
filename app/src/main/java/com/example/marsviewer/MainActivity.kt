@@ -11,16 +11,23 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.data.model.Camera
 import com.example.marsviewer.ui.theme.MarsViewerTheme
 import com.example.data.model.Photo
 import com.example.data.model.Rover
+import com.example.domain.entity.PhotoDomain
+import com.example.marsviewer.presentation.PhotoListUiState
+import com.example.marsviewer.presentation.PhotoViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +58,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MarsViewerTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    PhotoItem(photo)
+                    PhotoListInit()
                 }
             }
         }
@@ -64,7 +70,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PhotoItem(photo: Photo) {
+fun PhotoListInit(viewModel: PhotoViewModel = hiltViewModel()) {
+    PhotoList(state = viewModel.registerState)
+}
+
+@Composable
+fun PhotoItem(photo: PhotoDomain) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -113,11 +124,23 @@ fun PhotoItem(photo: Photo) {
 
 
 @Composable
-fun PhotoList(photoList: List<Photo>) {
+fun PhotoList(
+    state: PhotoListUiState
+) {
+
+
+    val photoList by state.photosFlow.collectAsState()
+    var selectedIndex by remember { mutableStateOf(-1) }
+
+
     LazyColumn() {
-        itemsIndexed(items = photoList) { index, item ->
-            PhotoItem(photo = item)
+        photoList?.let {
+
+            itemsIndexed(it.list) { index, item ->
+                PhotoItem(photo = item)
+            }
         }
+
     }
 }
 
@@ -150,6 +173,6 @@ fun DefaultPreview() {
 
 
     MarsViewerTheme {
-        PhotoItem(photo)
+        // PhotoItem(photo)
     }
 }

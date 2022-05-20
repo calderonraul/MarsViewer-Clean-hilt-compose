@@ -6,6 +6,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+
+data class ListOfPhotos(
+    val photos : List<Photo>
+)
 @Entity(tableName = "photos_table")
 data class Photo(
 

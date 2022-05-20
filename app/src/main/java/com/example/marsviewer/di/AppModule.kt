@@ -5,6 +5,10 @@ import androidx.room.Room
 import com.example.data.api.PhotosApi
 import com.example.data.database.PhotosDao
 import com.example.data.database.PhotosDatabase
+import com.example.data.model.ListOfPhotosMapper
+import com.example.data.model.PhotoMapper
+import com.example.domain.repository.PhotosRepository
+import com.example.domain.useCase.GetPhotosUseCase
 import com.example.marsviewer.BuildConfig.DEBUG
 import dagger.Module
 import dagger.Provides
@@ -88,6 +92,40 @@ object NetworkModule {
             .build()
 
     }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object MapperModule{
+
+        @Provides
+        @Singleton
+        fun provideMapper():ListOfPhotosMapper{
+            return ListOfPhotosMapper()
+        }
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object RepositoryModule{
+        @Provides
+        fun providePhotoRepository(
+            api: PhotosApi,
+            mapper: ListOfPhotosMapper
+        ):PhotosRepository{
+            return com.example.data.PhotoRepositoryImpl(api, mapper)
+        }
+    }
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object UseCaseModule{
+        @Provides
+        @Singleton
+        fun provideUseCase(photosRepository: PhotosRepository):com.example.domain.useCase.GetPhotosUseCase{
+            return GetPhotosUseCase(photosRepository)
+        }
+    }
+
 
 
 }

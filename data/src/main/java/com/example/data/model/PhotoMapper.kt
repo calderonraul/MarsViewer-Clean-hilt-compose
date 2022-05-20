@@ -8,8 +8,8 @@ class PhotoMapper : EntityMapper<Photo, PhotoDomain> {
         return PhotoDomain(
             id = entity.id,
             sol = entity.sol,
-            camera = CameraMapper().mapFromEntity(entity.camera),
-            rover = RoverMapper().mapFromEntity(entity.rover),
+            camera = entity.camera.let { CameraMapper().mapFromEntity(it) },
+            rover = entity.rover.let { RoverMapper().mapFromEntity(it) },
             earthDate = entity.earthDate,
             imgSrc = entity.imgSrc
 
@@ -21,8 +21,8 @@ class PhotoMapper : EntityMapper<Photo, PhotoDomain> {
         return Photo(
             id = domainModel.id,
             sol = domainModel.sol,
-            camera = CameraMapper().mapToEntity(domainModel.camera),
-            rover = RoverMapper().mapToEntity(domainModel.rover),
+            camera = domainModel.camera.let { CameraMapper().mapToEntity(it) },
+            rover = domainModel.rover.let { RoverMapper().mapToEntity(it) },
             earthDate = domainModel.earthDate,
             imgSrc = domainModel.imgSrc
         )

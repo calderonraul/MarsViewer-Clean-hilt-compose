@@ -1,7 +1,8 @@
 package com.example.domain.repository
 
-import com.example.domain.entity.PhotoDomain
+import com.example.domain.entity.ListOfPhotosDomain
+import kotlinx.coroutines.flow.Flow
 
 interface PhotosRepository {
-    suspend fun getPhotos():List<PhotoDomain>
+      fun getPhotos(): Flow<ListOfPhotosDomain>
 }

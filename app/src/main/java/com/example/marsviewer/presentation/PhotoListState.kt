@@ -1,9 +1,9 @@
 package com.example.marsviewer.presentation
 
-import com.example.data.model.Photo
+import com.example.data.model.ListOfPhotos
+import com.example.domain.entity.ListOfPhotosDomain
+import kotlinx.coroutines.flow.StateFlow
 
-data class PhotoListState(
-    val isLoading: Boolean = false,
-    val photos: List<Photo> = emptyList(),
-    val error: String =""
+data class PhotoListUiState(
+    val photosFlow: StateFlow<ListOfPhotosDomain?>,
 )
