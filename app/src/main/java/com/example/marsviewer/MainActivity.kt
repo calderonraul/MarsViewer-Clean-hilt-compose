@@ -3,14 +3,12 @@ package com.example.marsviewer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,30 +30,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cameraTest = Camera(
-            1,
-            "Lorem Ipsum",
-            24,
-            "Mast Camera"
-        )
-        val roverTest = Rover(
-            1,
-            "Curiosity",
-            "01-01-2000",
-            "01-01-1999",
-            "active"
-        )
-        val photo = Photo(
-            1,
-            1000,
-            cameraTest,
-            "http://mars.jpl.nasa.gov/msl-raw-images/msss/01000/mcam/1000MR0044631250503685E01_DXXX.jpg",
-            "2015-05-30",
-            roverTest
-
-        )
-
-
         setContent {
             MarsViewerTheme {
                 Surface(
@@ -75,12 +49,16 @@ fun PhotoListInit(viewModel: PhotoViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun PhotoItem(photo: PhotoDomain) {
+fun PhotoItem(photo: PhotoDomain, fullScreen: MutableState<Boolean>) {
+
+    ViewInFullScreen(fullScreen = fullScreen, photo = photo)
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .height(110.dp),
+            //.clickable { onClick(index) }
+
+            .height(150.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         Surface() {
@@ -113,6 +91,9 @@ fun PhotoItem(photo: PhotoDomain) {
                         style = MaterialTheme.typography.subtitle1
                     )
                     Text(text = "Camera name: " + photo.camera.fullName)
+                    TextButton(onClick = { fullScreen.value = true }) {
+                        Text(text = "Show in full screen!")
+                    }
 
                 }
             }
@@ -122,54 +103,52 @@ fun PhotoItem(photo: PhotoDomain) {
 
 }
 
+@Composable
+fun ViewInFullScreen(
+    fullScreen: MutableState<Boolean>,
+    photo: PhotoDomain
+) {
+    if (fullScreen.value) {
+        Box(modifier = Modifier
+            .clickable { fullScreen.value = false }
+        ) {
+            AsyncImage(model = photo.imgSrc, contentDescription = null)
+        }
+    }
+}
 
 @Composable
 fun PhotoList(
     state: PhotoListUiState
 ) {
-
-
     val photoList by state.photosFlow.collectAsState()
+    val fullScreen: MutableState<Boolean> = remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(-1) }
+    var imgVisibility by remember { mutableStateOf(false) }
 
-
-    LazyColumn() {
-        photoList?.let {
-
-            itemsIndexed(it.list) { index, item ->
-                PhotoItem(photo = item)
+    if (!imgVisibility) {
+        LazyColumn() {
+            photoList?.let {
+                itemsIndexed(it.list) { index, item ->
+                    PhotoItem(photo = item, fullScreen)
+                    selectedIndex = index
+                }
             }
         }
-
+    } else {
+        photoList?.list?.let {
+            PhotoItem(
+                photo = it[selectedIndex],
+                fullScreen
+            )
+        }
     }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-
-    val cameraTest = Camera(
-        1,
-        "Lorem Ipsum",
-        24,
-        "Mast Camera"
-    )
-    val roverTest = Rover(
-        1,
-        "Curiosity",
-        "01-01-2000",
-        "01-01-1999",
-        "active"
-    )
-    val photo = Photo(
-        1,
-        1000,
-        cameraTest,
-        "http://mars.jpl.nasa.gov/msl-raw-images/msss/01000/mcam/1000MR0044631250503685E01_DXXX.jpg",
-        "2015-05-30",
-        roverTest
-
-    )
 
 
     MarsViewerTheme {
