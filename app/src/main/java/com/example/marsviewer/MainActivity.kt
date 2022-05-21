@@ -14,15 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import com.example.data.model.Camera
 import com.example.marsviewer.ui.theme.MarsViewerTheme
-import com.example.data.model.Photo
-import com.example.data.model.Rover
 import com.example.domain.entity.PhotoDomain
 import com.example.marsviewer.presentation.PhotoListUiState
 import com.example.marsviewer.presentation.PhotoViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 @AndroidEntryPoint
@@ -31,12 +36,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
+
             MarsViewerTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    PhotoListInit()
+                    startApp()
                 }
             }
         }
@@ -44,14 +51,32 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PhotoListInit(viewModel: PhotoViewModel = hiltViewModel()) {
-    PhotoList(state = viewModel.registerState)
+fun startApp() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "PhotoListInit") {
+        composable("PhotoListInit") { PhotoListInit(navController = navController) }
+        composable("SecondScreen/{encodedUrl}", listOf(navArgument("encodedUrl") {
+            type = NavType.StringType
+        })) {
+            val item = it.arguments?.getString("encodedUrl")
+            SecondScreen(url = item)
+        }
+
+    }
 }
 
-@Composable
-fun PhotoItem(photo: PhotoDomain, fullScreen: MutableState<Boolean>) {
 
-    ViewInFullScreen(fullScreen = fullScreen, photo = photo)
+@Composable
+fun PhotoListInit(viewModel: PhotoViewModel = hiltViewModel(), navController: NavController) {
+    PhotoList(state = viewModel.registerState, navController)
+}
+
+
+@Composable
+fun PhotoItem(photo: PhotoDomain, navController: NavController) {
+
+    var encodedUrl: String
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -76,6 +101,7 @@ fun PhotoItem(photo: PhotoDomain, fullScreen: MutableState<Boolean>) {
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(0.2f)
+                        .clickable { }
                 )
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -91,7 +117,8 @@ fun PhotoItem(photo: PhotoDomain, fullScreen: MutableState<Boolean>) {
                         style = MaterialTheme.typography.subtitle1
                     )
                     Text(text = "Camera name: " + photo.camera.fullName)
-                    TextButton(onClick = { fullScreen.value = true }) {
+                    encodedUrl = URLEncoder.encode(photo.imgSrc, StandardCharsets.UTF_8.toString())
+                    TextButton(onClick = { navController.navigate("SecondScreen/$encodedUrl") }) {
                         Text(text = "Show in full screen!")
                     }
 
@@ -119,31 +146,28 @@ fun ViewInFullScreen(
 
 @Composable
 fun PhotoList(
-    state: PhotoListUiState
+    state: PhotoListUiState,
+    navController: NavController
 ) {
     val photoList by state.photosFlow.collectAsState()
-    val fullScreen: MutableState<Boolean> = remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(-1) }
-    var imgVisibility by remember { mutableStateOf(false) }
 
-    if (!imgVisibility) {
-        LazyColumn() {
-            photoList?.let {
-                itemsIndexed(it.list) { index, item ->
-                    PhotoItem(photo = item, fullScreen)
-                    selectedIndex = index
-                }
+
+    LazyColumn() {
+        photoList?.let {
+            itemsIndexed(it.list) { index, item ->
+                PhotoItem(photo = item, navController)
             }
-        }
-    } else {
-        photoList?.list?.let {
-            PhotoItem(
-                photo = it[selectedIndex],
-                fullScreen
-            )
         }
     }
 
+
+}
+
+@Composable
+fun SecondScreen(url: String? = null) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(model = url, contentDescription = null)
+    }
 }
 
 @Preview(showBackground = true)
