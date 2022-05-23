@@ -11,9 +11,8 @@ class PhotoMapper : EntityMapper<Photo, PhotoDomain> {
             camera = entity.camera.let { CameraMapper().mapFromEntity(it) },
             rover = entity.rover.let { RoverMapper().mapFromEntity(it) },
             earthDate = entity.earthDate,
-            imgSrc = entity.imgSrc
-
-
+            imgSrc = entity.imgSrc,
+            list = fromEntityList(entity.photos)
         )
     }
 
@@ -24,14 +23,16 @@ class PhotoMapper : EntityMapper<Photo, PhotoDomain> {
             camera = domainModel.camera.let { CameraMapper().mapToEntity(it) },
             rover = domainModel.rover.let { RoverMapper().mapToEntity(it) },
             earthDate = domainModel.earthDate,
-            imgSrc = domainModel.imgSrc
+            imgSrc = domainModel.imgSrc,
+            photos = toEntityList(domainModel.list)
         )
     }
-    fun fromEntityList(initial: List<Photo>): List<PhotoDomain>{
+
+    fun fromEntityList(initial: List<Photo>): List<PhotoDomain> {
         return initial.map { mapFromEntity(it) }
     }
 
-    fun toEntityList(initial: List<PhotoDomain>): List<Photo>{
+    fun toEntityList(initial: List<PhotoDomain>): List<Photo> {
         return initial.map { mapToEntity(it) }
     }
 

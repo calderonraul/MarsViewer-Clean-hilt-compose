@@ -1,9 +1,10 @@
 package com.example.marsviewer.presentation
 
-import com.example.data.model.ListOfPhotos
-import com.example.domain.entity.ListOfPhotosDomain
+import com.example.domain.entity.PhotoDomain
 import kotlinx.coroutines.flow.StateFlow
 
 data class PhotoListUiState(
-    val photosFlow: StateFlow<ListOfPhotosDomain?>,
+    val photosFlow: StateFlow<List<PhotoDomain>>,
+    val wordValue: StateFlow<String>,
+    val onWordValueChanged: (String) -> Unit
 )

@@ -6,8 +6,8 @@ import com.example.domain.entity.CameraDomain
 class CameraMapper:EntityMapper<Camera,CameraDomain> {
     override fun mapFromEntity(entity: Camera): CameraDomain {
         return CameraDomain(
-            id = entity.id,
-            name = entity.name,
+            cameraId  = entity.idCamera,
+            cameraName = entity.nameCamera,
             roverID = entity.roverID,
             fullName = entity.fullName
         )
@@ -15,8 +15,8 @@ class CameraMapper:EntityMapper<Camera,CameraDomain> {
 
     override fun mapToEntity(domainModel: CameraDomain): Camera {
         return Camera(
-            id = domainModel.id,
-            name = domainModel.name,
+            idCamera = domainModel.cameraId,
+            nameCamera = domainModel.cameraName,
             roverID = domainModel.roverID,
             fullName = domainModel.fullName
         )

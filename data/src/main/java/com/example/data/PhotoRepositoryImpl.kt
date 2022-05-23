@@ -1,20 +1,33 @@
 package com.example.data
 
 import com.example.data.api.PhotosApi
-import com.example.data.model.ListOfPhotosMapper
-import com.example.domain.entity.ListOfPhotosDomain
+import com.example.data.database.PhotosDao
+import com.example.data.model.PhotoMapper
+import com.example.domain.entity.PhotoDomain
 import com.example.domain.repository.PhotosRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
-
-class PhotoRepositoryImpl(private val api: PhotosApi, private val mapper: ListOfPhotosMapper) :
+class PhotoRepositoryImpl(
+    private val api: PhotosApi,
+    private val mapper: PhotoMapper,
+    private val dao: PhotosDao
+) :
     PhotosRepository {
-    override fun getPhotos(): Flow<ListOfPhotosDomain> = flow {
+    override suspend fun getPhotos() {
         val listAux =
-            mapper.mapFromEntity(api.getAllPhotos(1000, "dDZHG9j3IUJCxEJT0JBxQImW8ffoK1DZdaq9lXXe"))
-        emit(listAux)
-    }.flowOn(Dispatchers.IO)
+            api.getAllPhotos(1000, "dDZHG9j3IUJCxEJT0JBxQImW8ffoK1DZdaq9lXXe")
+        listAux.photos?.let {
+            dao.insertAll(it)
+        }
+    }
+
+    override fun getDataFromRoom(): Flow<List<PhotoDomain>> {
+        return dao.getAllPhotosRoom().map {
+            mapper.fromEntityList(it)
+        }
+
+    }
+
+
 }

@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.example.data.api.PhotosApi
 import com.example.data.database.PhotosDao
 import com.example.data.database.PhotosDatabase
-import com.example.data.model.ListOfPhotosMapper
 import com.example.data.model.PhotoMapper
 import com.example.domain.repository.PhotosRepository
 import com.example.domain.useCase.GetPhotosUseCase
@@ -95,37 +94,38 @@ object NetworkModule {
 
     @Module
     @InstallIn(SingletonComponent::class)
-    object MapperModule{
+    object MapperModule {
 
         @Provides
         @Singleton
-        fun provideMapper():ListOfPhotosMapper{
-            return ListOfPhotosMapper()
+        fun provideMapper(): PhotoMapper {
+            return PhotoMapper()
         }
     }
 
     @Module
     @InstallIn(SingletonComponent::class)
-    object RepositoryModule{
+    object RepositoryModule {
         @Provides
         fun providePhotoRepository(
             api: PhotosApi,
-            mapper: ListOfPhotosMapper
-        ):PhotosRepository{
-            return com.example.data.PhotoRepositoryImpl(api, mapper)
+            mapper: PhotoMapper,
+            dao: PhotosDao
+        ): PhotosRepository {
+            return com.example.data.PhotoRepositoryImpl(api, mapper,dao)
         }
     }
 
     @Module
     @InstallIn(SingletonComponent::class)
-    object UseCaseModule{
+    object UseCaseModule {
         @Provides
         @Singleton
-        fun provideUseCase(photosRepository: PhotosRepository):com.example.domain.useCase.GetPhotosUseCase{
+        fun provideUseCase(photosRepository: PhotosRepository): com.example.domain.useCase.GetPhotosUseCase {
             return GetPhotosUseCase(photosRepository)
         }
-    }
 
+    }
 
 
 }

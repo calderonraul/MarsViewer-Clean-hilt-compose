@@ -2,6 +2,9 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
 }
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android'
+
 
 android {
     compileSdk 32
@@ -31,6 +34,11 @@ android {
 }
 
 dependencies {
+
+    kapt "androidx.lifecycle:lifecycle-compiler:2.5.0-rc01"
+    implementation "androidx.room:room-runtime:2.5.0-alpha01"
+    kapt "androidx.room:room-compiler:2.5.0-alpha01"
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

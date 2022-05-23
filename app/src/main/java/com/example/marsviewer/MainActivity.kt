@@ -1,7 +1,7 @@
 package com.example.marsviewer
 
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,8 +34,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import com.component.jetchip.data.ChipItem
-import com.component.jetchip.data.ChipType
 import com.example.marsviewer.ui.theme.MarsViewerTheme
 import com.example.domain.entity.PhotoDomain
 import com.example.marsviewer.presentation.PhotoListUiState
@@ -44,7 +41,6 @@ import com.example.marsviewer.presentation.PhotoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import com.component.jetchip.Chip
 
 
 @AndroidEntryPoint
@@ -124,7 +120,7 @@ fun PhotoItem(photo: PhotoDomain, navController: NavController) {
                 ) {
                     Text(text = "SOL: " + photo.sol.toString())
                     Text(
-                        text = "Robert name: " + photo.rover.name,
+                        text = "Robert name: " + photo.rover.roverName,
                         style = MaterialTheme.typography.subtitle1
                     )
                     Text(text = "Camera name: " + photo.camera.fullName)
@@ -149,14 +145,33 @@ fun PhotoList(
 ) {
 
     val photoList by state.photosFlow.collectAsState()
+    val word by state.wordValue.collectAsState()
+
     val textChipRememberOneState = remember {
         mutableStateOf(false)
     }
+    val textChipRememberOneState2 = remember {
+        mutableStateOf(false)
+    }
+    val textChipRememberOneState3 = remember {
+        mutableStateOf(false)
+    }
+    val textChipRememberOneState4 = remember {
+        mutableStateOf(false)
+    }
+    val textChipRememberOneState5 = remember {
+        mutableStateOf(false)
+    }
+
+    val listState = remember {
+        mutableStateOf(true)
+    }
+
     Column() {
         Row(modifier = Modifier.weight(0.1f)) {
             Column() {
                 Text(
-                    text = "Filtros! :D",
+                    text = "Select which camera photos you want to see",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.fillMaxWidth()
@@ -170,33 +185,60 @@ fun PhotoList(
                     TextChipWithIconVisibility(
                         iconId = com.example.data.R.drawable.ic_done,
                         isSelected = textChipRememberOneState.value,
-                        text = "filtro 1",
-                        onChecked = { textChipRememberOneState.value = it })
-
-
+                        text = "FHAZ",
+                        onChecked = { textChipRememberOneState.value = it },
+                        state = state,
+                        onFiltered = { listState.value = it }
+                    )
                     TextChipWithIconVisibility(
                         iconId = com.example.data.R.drawable.ic_done,
-                        isSelected = textChipRememberOneState.value,
-                        text = "Filtro 2",
-                        onChecked = { textChipRememberOneState.value = it })
+                        isSelected = textChipRememberOneState2.value,
+                        text = "RHAZ",
+                        onChecked = { textChipRememberOneState2.value = it },
+                        state = state,
+                        onFiltered = { listState.value = it }
 
+                    )
                     TextChipWithIconVisibility(
                         iconId = com.example.data.R.drawable.ic_done,
-                        isSelected = textChipRememberOneState.value,
-                        text = "Filtro 3",
-                        onChecked = { textChipRememberOneState.value = it })
+                        isSelected = textChipRememberOneState3.value,
+                        text = "MAST",
+                        onChecked = { textChipRememberOneState3.value = it },
+                        state = state,
+                        onFiltered = { listState.value = it }
+                    )
+                    TextChipWithIconVisibility(
+                        iconId = com.example.data.R.drawable.ic_done,
+                        isSelected = textChipRememberOneState4.value,
+                        text = "CHEMCAM",
+                        onChecked = { textChipRememberOneState4.value = it },
+                        state = state,
+                        onFiltered = { listState.value = it }
+                    )
+                    TextChipWithIconVisibility(
+                        iconId = com.example.data.R.drawable.ic_done,
+                        isSelected = textChipRememberOneState5.value,
+                        text = "MAHLI",
+                        onChecked = { textChipRememberOneState5.value = it },
+                        state = state,
+                        onFiltered = { listState.value = it }
+                    )
                 }
             }
-
         }
         Row(modifier = Modifier.weight(0.9f)) {
-            LazyColumn(modifier = Modifier) {
-                photoList?.let {
-                    itemsIndexed(it.list) { _, item ->
+
+            if (listState.value) {
+                LazyColumn(modifier = Modifier) {
+                    itemsIndexed(photoList) { _, item ->
                         PhotoItem(photo = item, navController)
                     }
                 }
+            } else {
+
             }
+
+
         }
     }
 }
@@ -218,6 +260,8 @@ fun TextChipWithIconVisibility(
     isSelected: Boolean,
     text: String,
     onChecked: (Boolean) -> Unit,
+    state: PhotoListUiState,
+    onFiltered: (Boolean) -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
     Row(
@@ -240,6 +284,9 @@ fun TextChipWithIconVisibility(
             .clip(shape = shape)
             .clickable {
                 onChecked(!isSelected)
+                onFiltered(isSelected)
+                state.onWordValueChanged(text)
+
             }
             .padding(4.dp)
     ) {
