@@ -85,6 +85,7 @@ dependencies {
     implementation project(path: ':data')
     implementation project(path: ':utils')
     implementation project(path: ':domain')
+    implementation 'com.github.raipankaj:Chip:1.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
