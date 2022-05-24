@@ -285,6 +285,9 @@ fun TextChipWithIconVisibility(
                 onFiltered(isSelected)
                 state.onWordValueChanged(text)
                 state.fetchMoreData()
+                if (isSelected){
+                    state.onWordValueChanged("")
+                }
 
             }
             .padding(4.dp)

@@ -2,9 +2,11 @@ package com.example.marsviewer.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -41,4 +43,12 @@ fun MarsViewerTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
         shapes = Shapes,
         content = content
     )
+}
+
+@Preview
+@Composable
+fun ejemplo(){
+    MarsViewerTheme() {
+        Text(text = "Hola")
+    }
 }
