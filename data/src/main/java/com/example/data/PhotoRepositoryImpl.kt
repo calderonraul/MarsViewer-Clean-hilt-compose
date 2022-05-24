@@ -17,17 +17,28 @@ class PhotoRepositoryImpl(
     override suspend fun getPhotos() {
         val listAux =
             api.getAllPhotos(1000, "dDZHG9j3IUJCxEJT0JBxQImW8ffoK1DZdaq9lXXe")
+        dao.clearTable()
         listAux.photos?.let {
             dao.insertAll(it)
         }
     }
 
-    override fun getDataFromRoom(): Flow<List<PhotoDomain>> {
-        return dao.getAllPhotosRoom().map {
-            mapper.fromEntityList(it)
-        }
 
+    override fun getDataFromRoom(name: String): Flow<List<PhotoDomain>> {
+        if(name.isBlank()){
+            return  dao.getAllPhotosRoom().map {
+                mapper.fromEntityList(it)
+            }
+        }else{
+            return dao.getPhotoByCameraName(name).map {
+                mapper.fromEntityList(it)
+            }
+        }
     }
 
 
 }
+
+
+
+

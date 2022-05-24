@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface PhotosRepository {
       suspend fun getPhotos()
-      fun getDataFromRoom(): Flow<List<PhotoDomain>>
+      fun getDataFromRoom(name:String): Flow<List<PhotoDomain>>
+
 }

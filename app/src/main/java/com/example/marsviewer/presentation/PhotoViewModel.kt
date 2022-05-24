@@ -19,15 +19,22 @@ class PhotoViewModel @Inject constructor(
     private val getPhotosUseCase: GetPhotosUseCase,
 ) :
     ViewModel() {
-    private val photoData = getPhotosUseCase.invoke().stateIn(
+    private val wordValueFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val photoData = getPhotosUseCase.invoke(wordValueFlow.value).stateIn(
         viewModelScope, SharingStarted.Lazily,
         emptyList()
     )
-    private val wordValueFlow: MutableStateFlow<String> = MutableStateFlow("")
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             getPhotosUseCase.initDB()
+        }
+    }
+
+    fun fetchFilteredList(){
+        viewModelScope.launch (Dispatchers.IO){
+            getPhotosUseCase.invoke(wordValueFlow.value)
         }
     }
 
@@ -38,7 +45,8 @@ class PhotoViewModel @Inject constructor(
     val registerState = PhotoListUiState(
         photosFlow = photoData,
         wordValue = wordValueFlow,
-        onWordValueChanged = this::onWordChanged
+        onWordValueChanged = this::onWordChanged,
+        fetchMoreData = this::fetchFilteredList
     )
 
 }

@@ -16,8 +16,10 @@ interface PhotosDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(photos: List<Photo>)
 
-    @Query("SELECT * FROM photos_table WHERE fullName= :fullName")
-    fun getPhotoByCameraName(fullName:String): Flow<List<Photo>>
+    @Query("SELECT * FROM photos_table WHERE nameCamera= :name")
+    fun getPhotoByCameraName(name:String): Flow<List<Photo>>
 
+    @Query("DELETE FROM photos_table")
+    fun clearTable()
 
 }

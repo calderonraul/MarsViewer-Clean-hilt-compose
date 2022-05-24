@@ -145,7 +145,6 @@ fun PhotoList(
 ) {
 
     val photoList by state.photosFlow.collectAsState()
-    val word by state.wordValue.collectAsState()
 
     val textChipRememberOneState = remember {
         mutableStateOf(false)
@@ -228,14 +227,11 @@ fun PhotoList(
         }
         Row(modifier = Modifier.weight(0.9f)) {
 
-            if (listState.value) {
-                LazyColumn(modifier = Modifier) {
-                    itemsIndexed(photoList) { _, item ->
-                        PhotoItem(photo = item, navController)
-                    }
-                }
-            } else {
 
+            LazyColumn(modifier = Modifier) {
+                itemsIndexed(photoList) { _, item ->
+                    PhotoItem(photo = item, navController)
+                }
             }
 
 
@@ -263,6 +259,8 @@ fun TextChipWithIconVisibility(
     state: PhotoListUiState,
     onFiltered: (Boolean) -> Unit
 ) {
+    val word by state.wordValue.collectAsState()
+
     val shape = RoundedCornerShape(8.dp)
     Row(
         horizontalArrangement = Arrangement.Center,
@@ -286,6 +284,7 @@ fun TextChipWithIconVisibility(
                 onChecked(!isSelected)
                 onFiltered(isSelected)
                 state.onWordValueChanged(text)
+                state.fetchMoreData()
 
             }
             .padding(4.dp)

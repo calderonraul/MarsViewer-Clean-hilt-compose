@@ -6,8 +6,8 @@ import com.example.domain.repository.PhotosRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetPhotosUseCase (private val repository: PhotosRepository){
-      operator fun invoke(): Flow<List<PhotoDomain>> {
-        return repository.getDataFromRoom()
+      operator fun invoke(name:String): Flow<List<PhotoDomain>> {
+        return repository.getDataFromRoom(name)
     }
 
     suspend fun initDB(){
